@@ -1,42 +1,37 @@
-from flask import Flask
+from flask import Flask, render_template
+
 import utils
+
 app = Flask(__name__)
 
 
 @app.route('/')
-def page_all_candidates():
-    candidates = utils.candidates_get_all()
-    list_of_candidates = ""
-    for candidate in candidates:
-        list_of_candidates += f"{candidate['name']}\n"
-        list_of_candidates += f"{candidate['skills']}\n"
-        list_of_candidates += f"{candidate['position']}\n"
-        list_of_candidates += "\n"
-    return "<pre>" + list_of_candidates + "</pre>"
+def page_list():
+    candidates = utils.get_candidates()
+    return render_template('list.html', candidates=candidates)
 
 
-@app.route('/skills/<skill>')
-def page_candidates_by_skill(skill):
-    candidates = utils.candidates_get_by_skill(skill)
-    list_of_candidates = ""
-    for candidate in candidates:
-        list_of_candidates += f"{candidate['name']}\n"
-        list_of_candidates += f"{candidate['skills']}\n"
-        list_of_candidates += f"{candidate['position']}\n"
-        list_of_candidates += "\n"
-    return "<pre>" + list_of_candidates + "</pre>"
+@app.route('/candidate/<int:candidate_id>/')
+def page_candidate(candidate_id):
+    candidate = utils.get_candidates_for_id(candidate_id)
+    return render_template('card.html', candidate=candidate)
 
 
-@app.route('/candidates/<int:pk>')
-def page_candidates_by_pk(pk):
-    candidate = utils.candidates_get_by_pk(pk)
-    list_of_candidate = ""
-    list_of_candidate += f"<img src=\"{candidate['picture']}\">\n"
-    list_of_candidate += f"{candidate['name']}\n"
-    list_of_candidate += f"{candidate['skills']}\n"
-    list_of_candidate += f"{candidate['position']}\n"
-    list_of_candidate += "\n"
-    return "<pre>" + list_of_candidate + "</pre>"
+@app.route('/search/<candidate_name>/')
+def page_search(candidate_name):
+    candidates = utils.get_candidates_by_name(candidate_name)
+    number_of_candidates = len(candidates)
+    return render_template('search.html', candidates=candidates, number_of_candidates=number_of_candidates)
+
+
+@app.route('/skill/<skill_name>/')
+def page_skill(skill_name):
+    candidates = utils.candidates_get_by_skill(skill_name)
+    number_of_candidates = len(candidates)
+    return render_template('skill.html', skill_name=skill_name, candidates=candidates, number_of_candidates=number_of_candidates)
+
+
+
 
 
 if __name__ == '__main__':
